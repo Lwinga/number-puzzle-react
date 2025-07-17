@@ -2,11 +2,11 @@ import { useState } from "react";
 import NumberBox from "./NumberBox.jsx";
 
 export default function PuzzleBox({
-  rows = 3,
+  gridSize = 3,
   initialBoxes = [],
 }) {
   const boxSize = 60;
-  const size = boxSize * rows;
+  const size = boxSize * gridSize;
   const [boxes, setBoxes] = useState(initialBoxes);
   
   function handleDrag(label, direction) {
@@ -27,9 +27,9 @@ export default function PuzzleBox({
     // Check if the next position is not out of bounds
     if (
       nextPosition.x < 0 ||
-      nextPosition.x >= rows ||
+      nextPosition.x >= gridSize ||
       nextPosition.y < 0 ||
-      nextPosition.y >= rows
+      nextPosition.y >= gridSize
     ) {
       return;
     }
