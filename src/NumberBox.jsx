@@ -1,9 +1,68 @@
+import { useEffect, useRef, useState } from "react";
+
 export default function NumberBox({
   label,
   size = 60,
   positionX = 0,
   positionY = 0,
+  onDrag = () => {},
 }) {
+  const [holdingAt, setHoldingAt] = useState(null);
+  const direction = useRef('');
+
+  useEffect(() => {
+    if (direction.current) {
+      onDrag(label, direction.current);
+      direction.current = '';
+    }
+  });
+
+  function handleHold(e) {
+    if (e.nativeEvent instanceof MouseEvent) {
+      setHoldingAt({
+        x: e.clientX,
+        y: e.clientY,
+      });
+    } else if (e.nativeEvent instanceof TouchEvent) {
+      setHoldingAt({
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+      });
+    }
+  }
+
+  function handleDrag(e) {
+    if (!holdingAt) return;
+
+    const minMovement = size / 8;
+    let deltaX = 0, deltaY = 0;
+
+    if (e.nativeEvent instanceof MouseEvent) {
+      deltaX = e.clientX - holdingAt.x;
+      deltaY = e.clientY - holdingAt.y;
+    } else if (e.nativeEvent instanceof TouchEvent) {
+      deltaX = e.touches[0].clientX - holdingAt.x;
+      deltaY = e.touches[0].clientY - holdingAt.y;
+    } else {
+      return;
+    }
+
+    // Direction with the biggest movement takes precedence
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX > minMovement) {
+        direction.current = 'right';
+      } else if (deltaX < -minMovement) {
+        direction.current = 'left';
+      }
+    } else {
+      if (deltaY > minMovement) {
+        direction.current = 'bottom';
+      } else if (deltaY < -minMovement) {
+        direction.current = 'top';
+      }
+    }
+  }
+
   return (
     <div
       style={{
@@ -21,7 +80,15 @@ export default function NumberBox({
         left: `${positionX * size}px`,
         top: `${positionY * size}px`,
         userSelect: 'none',
+        transition: 'all 0.2s',
       }}
+      onMouseDown={handleHold}
+      onTouchStart={handleHold}
+      onMouseMove={handleDrag}
+      onTouchMove={handleDrag}
+      onMouseUp={() => setHoldingAt(null)}
+      onTouchEnd={() => setHoldingAt(null)}
+      onMouseOut={() => setHoldingAt(null)} // Workaround when onMouseUp is skipped after dragging outside
     >
       {label}
     </div>

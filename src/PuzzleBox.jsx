@@ -1,26 +1,58 @@
+import { useState } from "react";
 import NumberBox from "./NumberBox.jsx";
 
 export default function PuzzleBox({
-  rows = 3
+  rows = 3,
+  initialBoxes = [],
 }) {
   const boxSize = 60;
-  const size = 60 * rows;
-  const totalBoxes = rows * rows - 1;
-  const boxes = [];
+  const size = boxSize * rows;
+  const [boxes, setBoxes] = useState(initialBoxes);
+  
+  function handleDrag(label, direction) {
+    let box = boxes.find(box => box.label === label);
+    let nextPosition = {x: box.x, y: box.y};
 
-  for (let x = 0, box = 0; x < rows; x++) {
-    for (let y = 0; y < rows && box < totalBoxes; y++, box++) {
-      const label = x + y * rows + 1;
-      boxes.push(
-        <NumberBox
-          key={label}
-          label={label}
-          size={boxSize}
-          positionX={x}
-          positionY={y}
-        />
-      )
+    // Generate the next position
+    if (direction === 'top') {
+      nextPosition.y--;
+    } else if (direction === 'right') {
+      nextPosition.x++;
+    } else if (direction === 'bottom') {
+      nextPosition.y++;
+    } else if (direction === 'left') {
+      nextPosition.x--;
     }
+
+    // Check if the next position is not out of bounds
+    if (
+      nextPosition.x < 0 ||
+      nextPosition.x >= rows ||
+      nextPosition.y < 0 ||
+      nextPosition.y >= rows
+    ) {
+      return;
+    }
+
+    // Check if no box exists on the next position
+    if (boxes.find(box => {
+      return nextPosition.x === box.x && nextPosition.y === box.y;
+    })) {
+      return;
+    }
+
+    // Change box position to the next position
+    setBoxes(boxes.map(b => {
+      if (box.label === b.label) {
+        return {
+          ...b,
+          x: nextPosition.x,
+          y: nextPosition.y,
+        }
+      } else {
+        return b;
+      }
+    }));
   }
 
   return (
@@ -33,7 +65,16 @@ export default function PuzzleBox({
         boxSizing: 'content-box',
       }}
     >
-      {boxes}
+      {boxes.map(box => 
+        <NumberBox
+          key={box.label}
+          label={box.label}
+          size={boxSize}
+          positionX={box.x}
+          positionY={box.y}
+          onDrag={handleDrag}
+        />
+      )}
     </div>
   )
 }
