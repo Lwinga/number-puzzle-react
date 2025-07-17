@@ -1,15 +1,17 @@
+import { useState } from "react";
 import PuzzleBox from "./PuzzleBox.jsx";
 
 export default function App() {
+  const [refresh, setRefresh] = useState(0);
+
   const gridSize = 3;
   const totalBoxes = gridSize * gridSize - 1; // Leave one space empty
   const initialBoxes = [];
 
   // Generate the boxes
-  for (let x = 0, box = 0; x < gridSize; x++) {
-    for (let y = 0; y < gridSize && box < totalBoxes; y++, box++) {
-      const label = x + y * gridSize + 1;
-      initialBoxes.push({label, x, y});
+  for (let y = 0, box = 0; y < gridSize; y++) {
+    for (let x = 0; x < gridSize && box < totalBoxes; x++, box++) {
+      initialBoxes.push({label: box + 1, x, y});
     }
   }
 
@@ -51,9 +53,10 @@ export default function App() {
 
   return (
     <PuzzleBox
-      key={gridSize}
+      key={gridSize + refresh}
       gridSize={gridSize}
       initialBoxes={initialBoxes}
+      onRefresh={() => setRefresh(refresh + 1)}
     />
   )
 }

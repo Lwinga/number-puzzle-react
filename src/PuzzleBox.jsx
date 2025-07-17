@@ -1,13 +1,39 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NumberBox from "./NumberBox.jsx";
 
 export default function PuzzleBox({
   gridSize = 3,
   initialBoxes = [],
+  onRefresh = () => {},
 }) {
   const boxSize = 60;
   const size = boxSize * gridSize;
   const [boxes, setBoxes] = useState(initialBoxes);
+
+  useEffect(() => {
+    if (checkForWin()) {
+      setTimeout(() => {
+        window.alert('You won!');
+        onRefresh();
+      }, 500);
+    }
+  }, [boxes]);
+
+  function checkForWin() {
+    const totalBoxes = gridSize * gridSize - 1;
+
+    for (let y = 0, label = 1; y < gridSize; y++) {
+      for (let x = 0; x < gridSize && label <= totalBoxes; x++, label++) {
+        let box = boxes.find(box => {
+          return box.label === label;
+        });
+        if (box.x !== x || box.y !== y) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
   
   function handleDrag(label, direction) {
     let box = boxes.find(box => box.label === label);
