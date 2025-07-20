@@ -15,7 +15,7 @@ export default function PuzzleBox({
       setTimeout(() => {
         window.alert('You won!');
         onRefresh();
-      }, 500);
+      }, 250); // The delay to wait for the transition
     }
   }, [boxes]);
 

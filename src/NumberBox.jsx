@@ -8,14 +8,14 @@ export default function NumberBox({
   onDrag = () => {},
 }) {
   const [holdingAt, setHoldingAt] = useState(null);
-  const direction = useRef('');
+  const [direction, setDirection] = useState({value: null, id: 0});
+  const throttledRef = useRef(false);
 
   useEffect(() => {
-    if (direction.current) {
-      onDrag(label, direction.current);
-      direction.current = '';
+    if (direction.value) { // Prevents firing the event on the initial render
+      onDrag(label, direction.value);
     }
-  });
+  }, [direction.id]);
 
   function handleHold(e) {
     if (e.nativeEvent instanceof MouseEvent) {
@@ -47,18 +47,30 @@ export default function NumberBox({
       return;
     }
 
+    let currentDirection = '';
     // Direction with the biggest movement takes precedence
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
       if (deltaX > minMovement) {
-        direction.current = 'right';
+        currentDirection = 'right';
       } else if (deltaX < -minMovement) {
-        direction.current = 'left';
+        currentDirection = 'left';
       }
     } else {
       if (deltaY > minMovement) {
-        direction.current = 'bottom';
+        currentDirection = 'bottom';
       } else if (deltaY < -minMovement) {
-        direction.current = 'top';
+        currentDirection = 'top'
+      }
+    }
+
+    if (currentDirection) {
+      if (!throttledRef.current) {
+        setDirection({
+          value: currentDirection,
+          id: direction.id + 1, // Re-render even on the same direction
+        });
+        throttledRef.current = true;
+        setTimeout(() => throttledRef.current = false, 500);
       }
     }
   }
