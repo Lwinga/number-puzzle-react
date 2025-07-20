@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 export default function NumberBox({
   label,
@@ -8,14 +8,7 @@ export default function NumberBox({
   onDrag = () => {},
 }) {
   const [holdingAt, setHoldingAt] = useState(null);
-  const [direction, setDirection] = useState({value: null, id: 0});
   const throttledRef = useRef(false);
-
-  useEffect(() => {
-    if (direction.value) { // Prevents firing the event on the initial render
-      onDrag(label, direction.value);
-    }
-  }, [direction.id]);
 
   function handleHold(e) {
     if (e.nativeEvent instanceof MouseEvent) {
@@ -47,28 +40,25 @@ export default function NumberBox({
       return;
     }
 
-    let currentDirection = '';
+    let direction = '';
     // Direction with the biggest movement takes precedence
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
       if (deltaX > minMovement) {
-        currentDirection = 'right';
+        direction = 'right';
       } else if (deltaX < -minMovement) {
-        currentDirection = 'left';
+        direction = 'left';
       }
     } else {
       if (deltaY > minMovement) {
-        currentDirection = 'bottom';
+        direction = 'bottom';
       } else if (deltaY < -minMovement) {
-        currentDirection = 'top'
+        direction = 'top'
       }
     }
 
-    if (currentDirection) {
+    if (direction) {
       if (!throttledRef.current) {
-        setDirection({
-          value: currentDirection,
-          id: direction.id + 1, // Re-render even on the same direction
-        });
+        onDrag(label, direction);
         throttledRef.current = true;
         setTimeout(() => throttledRef.current = false, 500);
       }
