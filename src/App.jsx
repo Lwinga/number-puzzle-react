@@ -4,7 +4,8 @@ import Stopwatch from "./Stopwatch.jsx";
 
 export default function App() {
   const [refresh, setRefresh] = useState(0);
-  const [stopwatchRunning, setStopwatchRunning] = useState(true);
+  const [isStopwatchRunning, setIsStopwatchRunning] = useState({value: true, id: 0});
+  const [isStopwatchPaused, setIsStopwatchPaused] = useState(false);
 
   const gridSize = 3;
   const totalBoxes = gridSize * gridSize - 1; // Leave one space empty
@@ -53,30 +54,60 @@ export default function App() {
     [emptySpace.x, emptySpace.y] = [movableBoxPos.x, movableBoxPos.y];
   }
 
+  function handleRefreshClick() {
+    setRefresh(refresh + 1);
+    setIsStopwatchRunning({value: true, id: isStopwatchRunning.id + 1});
+  }
+
   function handleStop(timeTaken) {
     setTimeout(() => {
       window.alert('You won!\nTime taken: ' + timeTaken);
       setRefresh(refresh + 1);
-      setStopwatchRunning(true);
+      setIsStopwatchRunning({value: true, id: isStopwatchRunning.id + 1});
     }, 250); // The delay to wait for the transition
   }
 
   function handleWin() {
-    setStopwatchRunning(false);
+    setIsStopwatchRunning({value: false, id: isStopwatchRunning.id + 1});
   }
 
   return (
     <>
-      <Stopwatch
-        running={stopwatchRunning}
-        onStop={handleStop}
-      />
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          marginBottom: '16px',
+        }}
+      >
+        <Stopwatch
+          isRunning={isStopwatchRunning}
+          isPaused={isStopwatchPaused}
+          onStop={handleStop}
+        />
+        <button onClick={handleRefreshClick}>Refresh</button>
+        <button onClick={() => setIsStopwatchPaused(true)}>Pause</button>
+      </div>
       <PuzzleBox
         key={gridSize + refresh}
         gridSize={gridSize}
         initialBoxes={initialBoxes}
         onWin={handleWin}
       />
+      {isStopwatchPaused && <div style={{
+        position: 'fixed',
+        width: '100%',
+        height: '100%',
+        left: '0',
+        top: '0',
+        background: 'white',
+        zIndex: '999',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+        <button onClick={() => setIsStopwatchPaused(false)}>Resume</button>
+      </div>}
     </>
   )
 }

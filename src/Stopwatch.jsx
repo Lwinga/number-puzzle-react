@@ -1,26 +1,38 @@
 import { useEffect, useRef, useState } from "react";
 
 export default function Stopwatch({
-  running = false,
+  isRunning = {value: true, id: 0}, // For start and stop
+  isPaused = false, // For pause and resume
   onStop = () => {},
 }) {
   const [now, setNow] = useState(0);
   const [startTime, setStartTime] = useState(0);
   const intervalRef = useRef(null);
+  const isPausedRef = useRef(isPaused);
 
   useEffect(() => {
-    if (running) {
+    if (isRunning.value) {
       setStartTime(Date.now());
       setNow(Date.now());
       clearInterval(intervalRef.current);
       intervalRef.current = setInterval(() => {
-        setNow(Date.now());
+        if (!isPausedRef.current) {
+          setNow(Date.now());
+        }
       }, 1000);
     } else {
       clearInterval(intervalRef.current);
       onStop(formatTime(elapsedSeconds));
     }
-  }, [running]);
+  }, [isRunning.id]);
+
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+    if (!isPaused && now > 0) {
+      setStartTime(startTime + (Date.now() - now));
+      setNow(Date.now());
+    }
+  }, [isPaused]);
 
   const elapsedSeconds = (now - startTime) / 1000;
 
