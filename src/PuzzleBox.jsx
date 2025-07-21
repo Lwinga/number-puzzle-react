@@ -4,7 +4,7 @@ import NumberBox from "./NumberBox.jsx";
 export default function PuzzleBox({
   gridSize = 3,
   initialBoxes = [],
-  onRefresh = () => {},
+  onWin = () => {},
 }) {
   const boxSize = 60;
   const size = boxSize * gridSize;
@@ -12,10 +12,7 @@ export default function PuzzleBox({
 
   useEffect(() => {
     if (checkForWin()) {
-      setTimeout(() => {
-        window.alert('You won!');
-        onRefresh();
-      }, 250); // The delay to wait for the transition
+      onWin();
     }
   }, [boxes]);
 

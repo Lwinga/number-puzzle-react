@@ -1,8 +1,10 @@
 import { useState } from "react";
 import PuzzleBox from "./PuzzleBox.jsx";
+import Stopwatch from "./Stopwatch.jsx";
 
 export default function App() {
   const [refresh, setRefresh] = useState(0);
+  const [stopwatchRunning, setStopwatchRunning] = useState(true);
 
   const gridSize = 3;
   const totalBoxes = gridSize * gridSize - 1; // Leave one space empty
@@ -51,12 +53,30 @@ export default function App() {
     [emptySpace.x, emptySpace.y] = [movableBoxPos.x, movableBoxPos.y];
   }
 
+  function handleStop(timeTaken) {
+    setTimeout(() => {
+      window.alert('You won!\nTime taken: ' + timeTaken);
+      setRefresh(refresh + 1);
+      setStopwatchRunning(true);
+    }, 250); // The delay to wait for the transition
+  }
+
+  function handleWin() {
+    setStopwatchRunning(false);
+  }
+
   return (
-    <PuzzleBox
-      key={gridSize + refresh}
-      gridSize={gridSize}
-      initialBoxes={initialBoxes}
-      onRefresh={() => setRefresh(refresh + 1)}
-    />
+    <>
+      <Stopwatch
+        running={stopwatchRunning}
+        onStop={handleStop}
+      />
+      <PuzzleBox
+        key={gridSize + refresh}
+        gridSize={gridSize}
+        initialBoxes={initialBoxes}
+        onWin={handleWin}
+      />
+    </>
   )
 }
