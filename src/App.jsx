@@ -2,12 +2,23 @@ import { useState } from "react";
 import PuzzleBox from "./PuzzleBox.jsx";
 import Stopwatch from "./Stopwatch.jsx";
 
+const gridSizes = [
+  {size: 3, label: '3 x 3'},
+  {size: 4, label: '4 x 4'},
+  {size: 5, label: '5 x 5'},
+  {size: 6, label: '6 x 6'},
+  {size: 7, label: '7 x 7'},
+  {size: 8, label: '8 x 8'},
+  {size: 9, label: '9 x 9'},
+  {size: 10, label: '10 x 10'},
+];
+
 export default function App() {
+  const [gridSize, setGridSize] = useState(gridSizes[0].size);
   const [refresh, setRefresh] = useState(0);
   const [isStopwatchRunning, setIsStopwatchRunning] = useState({value: true, id: 0});
   const [isStopwatchPaused, setIsStopwatchPaused] = useState(false);
 
-  const gridSize = 3;
   const totalBoxes = gridSize * gridSize - 1; // Leave one space empty
   const initialBoxes = [];
 
@@ -54,6 +65,13 @@ export default function App() {
     [emptySpace.x, emptySpace.y] = [movableBoxPos.x, movableBoxPos.y];
   }
 
+  function handleGridSizeSelect(e) {
+    console.log(e.target.value);
+    setGridSize(e.target.value);
+    setRefresh(refresh + 1);
+    setIsStopwatchRunning({value: true, id: isStopwatchRunning.id + 1});
+  }
+
   function handleRefreshClick() {
     setRefresh(refresh + 1);
     setIsStopwatchRunning({value: true, id: isStopwatchRunning.id + 1});
@@ -73,6 +91,20 @@ export default function App() {
 
   return (
     <>
+      <select
+        onChange={handleGridSizeSelect}
+        style={{
+          width: '100%',
+          marginBottom: '16px',
+        }}
+      >
+        {gridSizes.map(gdSize => <option
+          key={gdSize.size}
+          value={gdSize.size}
+        >
+          {gdSize.label}
+        </option>)}
+      </select>
       <div
         style={{
           display: 'flex',
