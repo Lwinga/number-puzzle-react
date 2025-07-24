@@ -15,83 +15,36 @@ const gridSizes = [
 
 export default function App() {
   const [gridSize, setGridSize] = useState(gridSizes[0].size);
-  const [refresh, setRefresh] = useState(0);
-  const [isStopwatchRunning, setIsStopwatchRunning] = useState({value: true, id: 0});
-  const [isStopwatchPaused, setIsStopwatchPaused] = useState(false);
-
-  const totalBoxes = gridSize * gridSize - 1; // Leave one space empty
-  const initialBoxes = [];
-
-  // Generate the boxes
-  for (let y = 0, box = 0; y < gridSize; y++) {
-    for (let x = 0; x < gridSize && box < totalBoxes; x++, box++) {
-      initialBoxes.push({label: box + 1, x, y});
-    }
-  }
-
-  // Shuffle the boxes
-  let emptySpace = {
-    x: gridSize - 1,
-    y: gridSize - 1,
-    isAtEnd: function () {
-      return this.x === gridSize - 1 && this.y === gridSize - 1;
-    }
-  };
-  let ShuffleTimes = 10 * gridSize * gridSize;
-  let possibleMovableBoxes = [
-    {dx: 0, dy: -1}, // Top box
-    {dx: 1, dy: 0}, // Right box
-    {dx: 0, dy: 1}, // Bottom box
-    {dx: -1, dy: 0}, // Left box
-  ]
-  // After shuffle the empty space should remain at the end like before
-  for (let i = 0; i < ShuffleTimes || !emptySpace.isAtEnd(); i++) {
-    let movableBoxes = possibleMovableBoxes.filter(box => {
-      // Remove boxes that do not exist
-      let nextX = emptySpace.x + box.dx;
-      let nextY = emptySpace.y + box.dy;
-      return nextX >= 0 && nextX < gridSize && nextY >= 0 && nextY < gridSize;
-    });
-    // Move a randomly selected box
-    let randMovableBox = movableBoxes[Math.floor(Math.random() * movableBoxes.length)];
-    let movableBoxPos = {
-      x: emptySpace.x + randMovableBox.dx,
-      y: emptySpace.y + randMovableBox.dy,
-    };
-    let movableBox = initialBoxes.find(box => {
-      return box.x === movableBoxPos.x && box.y === movableBoxPos.y;
-    });
-    [movableBox.x, movableBox.y] = [emptySpace.x, emptySpace.y];
-    [emptySpace.x, emptySpace.y] = [movableBoxPos.x, movableBoxPos.y];
-  }
+  const [refreshId, setRefreshId] = useState(0);
+  const [stopwatchStatus, setStopwatchStatus] = useState('running');
 
   function handleGridSizeSelect(e) {
-    console.log(e.target.value);
     setGridSize(e.target.value);
-    setRefresh(refresh + 1);
-    setIsStopwatchRunning({value: true, id: isStopwatchRunning.id + 1});
+    setStopwatchStatus('running');
+    setRefreshId(refreshId + 1);
   }
 
   function handleRefreshClick() {
-    setRefresh(refresh + 1);
-    setIsStopwatchRunning({value: true, id: isStopwatchRunning.id + 1});
+    setStopwatchStatus('running');
+    setRefreshId(refreshId + 1);
   }
 
   function handleStop(timeTaken) {
     setTimeout(() => {
       window.alert('You won!\nTime taken: ' + timeTaken);
-      setRefresh(refresh + 1);
-      setIsStopwatchRunning({value: true, id: isStopwatchRunning.id + 1});
+      setStopwatchStatus('running');
+      setRefreshId(refreshId + 1);
     }, 250); // The delay to wait for the transition
   }
 
   function handleWin() {
-    setIsStopwatchRunning({value: false, id: isStopwatchRunning.id + 1});
+    setStopwatchStatus('stopped');
   }
 
   return (
     <>
       <select
+        value={gridSize}
         onChange={handleGridSizeSelect}
         style={{
           width: '100%',
@@ -113,20 +66,19 @@ export default function App() {
         }}
       >
         <Stopwatch
-          isRunning={isStopwatchRunning}
-          isPaused={isStopwatchPaused}
+          key={refreshId}
+          status={stopwatchStatus}
           onStop={handleStop}
         />
         <button onClick={handleRefreshClick}>Refresh</button>
-        <button onClick={() => setIsStopwatchPaused(true)}>Pause</button>
+        <button onClick={() => setStopwatchStatus('paused')}>Pause</button>
       </div>
       <PuzzleBox
-        key={gridSize + refresh}
+        key={refreshId}
         gridSize={gridSize}
-        initialBoxes={initialBoxes}
         onWin={handleWin}
       />
-      {isStopwatchPaused && <div style={{
+      {stopwatchStatus === 'paused' && <div style={{
         position: 'fixed',
         width: '100%',
         height: '100%',
@@ -138,7 +90,7 @@ export default function App() {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
-        <button onClick={() => setIsStopwatchPaused(false)}>Resume</button>
+        <button onClick={() => setStopwatchStatus('running')}>Resume</button>
       </div>}
     </>
   )

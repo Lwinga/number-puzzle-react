@@ -1,40 +1,34 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Stopwatch({
-  isRunning = {value: true, id: 0}, // For start and stop
-  isPaused = false, // For pause and resume
-  onStop = () => {},
+  status, // running, paused or stopped
+  onStop,
 }) {
-  const [now, setNow] = useState(0);
   const [startTime, setStartTime] = useState(0);
-  const intervalRef = useRef(null);
-  const isPausedRef = useRef(isPaused);
+  const [now, setNow] = useState(0);
+
+  const elapsedMillis = now - startTime;
+  const elapsedSeconds = elapsedMillis / 1000;
 
   useEffect(() => {
-    if (isRunning.value) {
-      setStartTime(Date.now());
+    if (status === 'running') {
+      let intervalId = null;
+       // If it was paused it will continue where it was
+      setStartTime(Date.now() - elapsedMillis);
       setNow(Date.now());
-      clearInterval(intervalRef.current);
-      intervalRef.current = setInterval(() => {
-        if (!isPausedRef.current) {
-          setNow(Date.now());
-        }
+      intervalId = setInterval(() => {
+        setNow(Date.now());
       }, 1000);
-    } else {
-      clearInterval(intervalRef.current);
+      return () => {
+        clearInterval(intervalId);
+      }
+    }  else if (status === 'stopped') {
+      setStartTime(0);
+      setNow(0);
       onStop(formatTime(elapsedSeconds));
     }
-  }, [isRunning.id]);
-
-  useEffect(() => {
-    isPausedRef.current = isPaused;
-    if (!isPaused && now > 0) {
-      setStartTime(startTime + (Date.now() - now));
-      setNow(Date.now());
-    }
-  }, [isPaused]);
-
-  const elapsedSeconds = (now - startTime) / 1000;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
 
   function formatTime(seconds) {
     const hrs = Math.floor(seconds / 3600);

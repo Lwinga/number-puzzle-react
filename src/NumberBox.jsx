@@ -2,13 +2,14 @@ import { useRef, useState } from "react";
 
 export default function NumberBox({
   label,
-  size = 60,
-  positionX = 0,
-  positionY = 0,
-  onDrag = () => {},
+  size,
+  positionX,
+  positionY,
+  onDrag,
 }) {
   const [holdingAt, setHoldingAt] = useState(null);
-  const throttledRef = useRef(false);
+
+  const isThrottledRef = useRef(false);
 
   function handleHold(e) {
     if (e.nativeEvent instanceof MouseEvent) {
@@ -57,10 +58,10 @@ export default function NumberBox({
     }
 
     if (direction) {
-      if (!throttledRef.current) {
+      if (!isThrottledRef.current) {
         onDrag(label, direction);
-        throttledRef.current = true;
-        setTimeout(() => throttledRef.current = false, 500);
+        isThrottledRef.current = true;
+        setTimeout(() => isThrottledRef.current = false, 500);
       }
     }
   }
