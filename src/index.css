@@ -5,8 +5,9 @@
 body {
   margin: 0;
   font-family: 'Roboto', sans-serif;
-  background: #0f2027 url('./assets/img/asfalt-light.png');
-  color: #2c5364;
+  background: #0f2027;
+  background-image: url('./assets/img/asfalt-light.png');
+  color: #fff;
 }
 
 #root {
@@ -40,7 +41,7 @@ header select, button {
 
 header select {
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.7em center;
   background-size: 1em;
@@ -97,7 +98,7 @@ main {
 .overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.9);
+  background: #0f2027;
   backdrop-filter: blur(5px);
   color: #fff;
   flex-direction: column;
