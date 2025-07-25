@@ -1,6 +1,8 @@
 import { useState } from "react";
 import PuzzleBox from "./PuzzleBox.jsx";
 import Stopwatch from "./Stopwatch.jsx";
+import { formatTime } from "./utils.js";
+import { useLocalStorage } from "./hooks.js";
 
 const gridSizes = [
   {size: 3, label: '3 x 3'},
@@ -13,10 +15,21 @@ const gridSizes = [
   {size: 10, label: '10 x 10'},
 ];
 
+const initialBestScore = (() => {
+  const initialBestScore = {};
+  gridSizes.forEach(gridSize => {
+    initialBestScore[gridSize.size] = 0;
+  });
+  return initialBestScore;
+})();
+
 export default function App() {
   const [gridSize, setGridSize] = useState(gridSizes[0].size);
   const [refreshId, setRefreshId] = useState(0);
   const [stopwatchStatus, setStopwatchStatus] = useState('running');
+  const [bestScore, setBestScore] = useLocalStorage(initialBestScore);
+
+  const currentBestScore = Number(bestScore !== null ? bestScore[gridSize] : 0);
 
   function handleGridSizeSelect(e) {
     setGridSize(e.target.value);
@@ -29,9 +42,17 @@ export default function App() {
     setRefreshId(refreshId + 1);
   }
 
-  function handleStop(timeTaken) {
+  function handleStop(elapsedSeconds) {
     setTimeout(() => {
-      window.alert('You won!\nTime taken: ' + timeTaken);
+      let nextBestScore = currentBestScore;
+      if (currentBestScore === 0 || elapsedSeconds < currentBestScore) {
+        nextBestScore = elapsedSeconds;
+        const record = {};
+        record[gridSize] = nextBestScore;
+        setBestScore(record);
+      }
+      window.alert('You won!\nTime taken: ' + formatTime(elapsedSeconds) +
+        '\nBest score: ' + formatTime(nextBestScore));
       setStopwatchStatus('running');
       setRefreshId(refreshId + 1);
     }, 250); // The delay to wait for the transition
@@ -78,6 +99,13 @@ export default function App() {
         gridSize={gridSize}
         onWin={handleWin}
       />
+      <div
+        style={{
+          marginTop: '16px',
+        }}
+      >
+        Best Score: { currentBestScore === 0 ? '---' : formatTime(currentBestScore) }
+      </div>
       {stopwatchStatus === 'paused' && <div style={{
         position: 'fixed',
         width: '100%',

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatTime } from "./utils.js";
 
 export default function Stopwatch({
   status, // running, paused or stopped
@@ -25,20 +26,10 @@ export default function Stopwatch({
     }  else if (status === 'stopped') {
       setStartTime(0);
       setNow(0);
-      onStop(formatTime(elapsedSeconds));
+      onStop(elapsedSeconds);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
-
-  function formatTime(seconds) {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = Math.floor(seconds % 60);
-
-    const pad = (num) => num < 10 ? '0' + num : num;
-
-    return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
-  }
 
   return (
     <div>{formatTime(elapsedSeconds)}</div>
