@@ -26,7 +26,6 @@ const initialBestScore = (() => {
 const mainPadding = 8;
 
 export default function App() {
-  const [gridSize, setGridSize] = useState(gridSizes[0].size);
   const [refreshId, setRefreshId] = useState(0);
   const [stopwatchStatus, setStopwatchStatus] = useState('running');
   const [moves, setMoves] = useState(0);
@@ -36,7 +35,14 @@ export default function App() {
 
   const mainRef = useRef(null);
   
-  const [bestScore, setBestScore] = useLocalStorage(initialBestScore);
+  const [gridSize, setGridSize] = useLocalStorage(
+    'gridSize',
+    gridSizes[0].size,
+  );
+  const [bestScore, setBestScore] = useLocalStorage(
+    Object.keys(initialBestScore),
+    initialBestScore,
+  );
 
   useEffect(() => {
     function updateMaxSize() {
@@ -99,7 +105,7 @@ export default function App() {
       <header>
         <div>
           <label htmlFor="gridSize">Grid Size:</label>
-          <select
+          {gridSize && <select
             id="gridSize"
             value={gridSize}
             onChange={handleGridSizeSelect}
@@ -110,7 +116,7 @@ export default function App() {
             >
               {gdSize.label}
             </option>)}
-          </select>
+          </select>}
         </div>
         <Stopwatch
           key={refreshId}
@@ -129,14 +135,14 @@ export default function App() {
       </header>
 
       <main ref={mainRef} style={{ padding: `${mainPadding}px` }}>
-        <PuzzleBox
-          key={refreshId}
+        {gridSize && <PuzzleBox
+          key={`${refreshId}${gridSize}`}
           gridSize={gridSize}
           moves={moves}
           maxSize={maxSize}
           onWin={handleWin}
           onMovesChange={(m) => setMoves(m)}
-        />
+        />}
         {stopwatchStatus === 'paused' && <div className="overlay pause">
           <h2>Game Paused</h2>
           <p><strong>Time:</strong> {formatTime(elapsedSeconds)}</p>

@@ -1,34 +1,40 @@
 import { useEffect, useState } from "react";
 
-export function useLocalStorage(initialData) {
+// Stores objects and primitives, if keys is array the data is object
+export function useLocalStorage(keys, initialData) {
 
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    if (initialData && !localStorage.getItem(Object.keys(initialData)[0])) {
+    if (!localStorage.getItem(Array.isArray(keys) ? keys[0] : keys)) {
       //  Populate the localStorage with initialData
       setData(initialData);
     } else {
-      // Read all data from localStorage
-      const localStorageData = {};
-      Object.entries(localStorage).forEach(([key, value]) => {
-        localStorageData[key] = value;
-      });
-      setData(localStorageData);
+      // Retrieve data from localStorage
+      if (Array.isArray(keys)) {
+        const localStorageData = {};
+        keys.forEach(key => localStorageData[key] = localStorage.getItem(key));
+        setData(localStorageData);
+      } else {
+        setData(localStorage.getItem(keys));
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (data !== null) {
-      //  Update localStorage with the latest data
-      Object.entries(data).forEach(([key, value]) => {
-        localStorage.setItem(key, value);
-      });
+    if (data === null) return;
+    //  Update localStorage with the latest data
+    if (Array.isArray(keys)) {
+      keys.forEach(key => localStorage.setItem(key, data[key]));
+    } else {
+      localStorage.setItem(keys, data);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   return [
-    data,
-    d => setData({ ...data, ...d }),
+    data && typeof initialData === 'number' ? Number(data) : data,
+    Array.isArray(keys) ? d => setData({ ...data, ...d }) : setData,
   ];
 }
