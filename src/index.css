@@ -1,11 +1,167 @@
 *, *::before, *::after {
   box-sizing: border-box;
 }
+
 body {
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background: #0f2027 url('./assets/img/asfalt-light.png');
+  color: #2c5364;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
   min-height: 100dvh;
+}
+
+header, footer {
+  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+  padding: 1em;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header select, button {
+  font-family: 'Orbitron', sans-serif;
+  padding: 0.5em 1em;
+  border: none;
+  border-radius: 10px;
+  background: #1e3c72;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+}
+
+header select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7em center;
+  background-size: 1em;
+  padding-right: 2em;
+}
+
+header > div:not(.stopwatch) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.stopwatch {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.2em;
+  background: #111;
+  padding: 0.5em 1em;
+  border-radius: 8px;
+  box-shadow: inset 0 0 5px #0ff;
+}
+
+main {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0;
+  position: relative;
+}
+
+.puzzle-grid {
+  position: relative;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+  background: #7b5e57;
+  background-image: url('./assets/img/wood-pattern.png');
+}
+
+.tile {
+  position: absolute;
+  background: #2c5364;
+  background-image: url('./assets/img/black-linen.png');
+  color: #e0e0e0;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  border-radius: 10px;
+  transition: left 0.2s linear, top 0.2s linear;
+  box-shadow: inset -2px -2px 5px rgba(0,0,0,0.4),
+              inset 2px 2px 5px rgba(255,255,255,0.05);
+}
+
+.overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.9);
+  backdrop-filter: blur(5px);
+  color: #fff;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  z-index: 999;
+  text-align: center;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.overlay h2 {
+  font-size: 2em;
+  margin-bottom: 1em;
+}
+
+.overlay p {
+  margin: 0.5em 0;
+  font-size: 1.2em;
+}
+
+.overlay button {
+  margin-top: 1em;
+  padding: 0.7em 1.5em;
+  font-size: 1em;
+  background: #4caf50;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1em;
+}
+
+.stats {
+  display: flex;
+  gap: 1em;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+@media(min-width: 420px) {
+  .stats {
+    gap: 2rem;
+  }
+  footer {
+    font-size: 1.1em;
+    padding: 1em 2em;
+  }
+}
+
+@media(min-width: 640px) {
+  header > div:not(.stopwatch) {
+    flex-direction: row;
+    align-items: center;
+  }
 }

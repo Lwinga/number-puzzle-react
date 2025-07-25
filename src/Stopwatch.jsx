@@ -3,6 +3,7 @@ import { formatTime } from "./utils.js";
 
 export default function Stopwatch({
   status, // running, paused or stopped
+  onPause,
   onStop,
 }) {
   const [startTime, setStartTime] = useState(0);
@@ -23,6 +24,8 @@ export default function Stopwatch({
       return () => {
         clearInterval(intervalId);
       }
+    } else if(status === 'paused') {
+      onPause(elapsedSeconds);
     }  else if (status === 'stopped') {
       setStartTime(0);
       setNow(0);
@@ -32,6 +35,6 @@ export default function Stopwatch({
   }, [status]);
 
   return (
-    <div>{formatTime(elapsedSeconds)}</div>
+    <div className="stopwatch">{formatTime(elapsedSeconds)}</div>
   );
 }

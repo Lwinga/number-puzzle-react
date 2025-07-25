@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PuzzleBox from "./PuzzleBox.jsx";
 import Stopwatch from "./Stopwatch.jsx";
 import { formatTime } from "./utils.js";
@@ -23,19 +23,44 @@ const initialBestScore = (() => {
   return initialBestScore;
 })();
 
+const mainPadding = 8;
+
 export default function App() {
   const [gridSize, setGridSize] = useState(gridSizes[0].size);
   const [refreshId, setRefreshId] = useState(0);
   const [stopwatchStatus, setStopwatchStatus] = useState('running');
   const [moves, setMoves] = useState(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [isWon, setIsWon] = useState(false);
+  const [maxSize, setMaxSize] = useState(0);
+
+  const mainRef = useRef(null);
+  
   const [bestScore, setBestScore] = useLocalStorage(initialBestScore);
 
+  useEffect(() => {
+    function updateMaxSize() {
+      const width = mainRef.current.clientWidth - mainPadding * 2;
+      const height = mainRef.current.clientHeight - mainPadding * 2;
+      setMaxSize(Math.min(width, height));
+    }
+    updateMaxSize();
+    window.addEventListener('resize', updateMaxSize);
+    return () => window.removeEventListener('resize', updateMaxSize);
+  }, []);
+
   const currentBestScore = Number(bestScore !== null ? bestScore[gridSize] : 0);
+  const bestScoreText = currentBestScore === 0 ? '--:--' : formatTime(currentBestScore);
 
   function refresh() {
     setStopwatchStatus('running');
     setMoves(0);
     setRefreshId(refreshId + 1);
+  }
+
+  function handleContinueClick() {
+    setIsWon(false);
+    refresh();
   }
 
   function handleGridSizeSelect(e) {
@@ -47,92 +72,95 @@ export default function App() {
     refresh();
   }
 
-  function handleStop(elapsedSeconds) {
-    setTimeout(() => {
-      let nextBestScore = currentBestScore;
-      if (currentBestScore === 0 || elapsedSeconds < currentBestScore) {
-        nextBestScore = elapsedSeconds;
-        const record = {};
-        record[gridSize] = nextBestScore;
-        setBestScore(record);
-      }
-      window.alert('You won!\nTime taken: ' + formatTime(elapsedSeconds) +
-        '\nBest score: ' + formatTime(nextBestScore));
-      refresh();
-    }, 250); // The delay to wait for the transition
+  function handlePause(seconds) {
+    setElapsedSeconds(seconds);
+  }
+
+  function handleStop(seconds) {
+    let nextBestScore = currentBestScore;
+    if (currentBestScore === 0 || seconds < currentBestScore) {
+      nextBestScore = seconds;
+      const record = {};
+      record[gridSize] = nextBestScore;
+      setBestScore(record);
+    }
+    setElapsedSeconds(seconds);
   }
 
   function handleWin() {
-    setStopwatchStatus('stopped');
+    setTimeout(() => {
+      setStopwatchStatus('stopped');
+      setIsWon(true);
+    }, 250); // The delay to wait for the transition
   }
 
   return (
     <>
-      <select
-        value={gridSize}
-        onChange={handleGridSizeSelect}
-        style={{
-          width: '100%',
-          marginBottom: '16px',
-        }}
-      >
-        {gridSizes.map(gdSize => <option
-          key={gdSize.size}
-          value={gdSize.size}
-        >
-          {gdSize.label}
-        </option>)}
-      </select>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginBottom: '16px',
-        }}
-      >
+      <header>
+        <div>
+          <label htmlFor="gridSize">Grid Size:</label>
+          <select
+            id="gridSize"
+            value={gridSize}
+            onChange={handleGridSizeSelect}
+          >
+            {gridSizes.map(gdSize => <option
+              key={gdSize.size}
+              value={gdSize.size}
+            >
+              {gdSize.label}
+            </option>)}
+          </select>
+        </div>
         <Stopwatch
           key={refreshId}
           status={stopwatchStatus}
+          onPause={handlePause}
           onStop={handleStop}
         />
-        <button onClick={handleRefreshClick}>Refresh</button>
-        <button onClick={() => setStopwatchStatus('paused')}>Pause</button>
-      </div>
-      <PuzzleBox
-        key={refreshId}
-        gridSize={gridSize}
-        moves={moves}
-        onWin={handleWin}
-        onMovesChange={(m) => setMoves(m)}
-      />
-      <div
-        style={{
-          marginTop: '16px',
-        }}
-      >
-        Best Score: {currentBestScore === 0 ? '---' : formatTime(currentBestScore)}
-      </div>
-      <div
-        style={{
-          marginTop: '16px',
-        }}
-      >
-        Number of Moves: {moves}
-      </div>
-      {stopwatchStatus === 'paused' && <div style={{
-        position: 'fixed',
-        width: '100%',
-        height: '100%',
-        left: '0',
-        top: '0',
-        background: 'white',
-        zIndex: '999',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-        <button onClick={() => setStopwatchStatus('running')}>Resume</button>
-      </div>}
+        <div>
+          <button className="icon-btn" onClick={handleRefreshClick}>
+            <i className="fas fa-rotate-right"></i> Refresh
+          </button>
+          <button className="icon-btn" onClick={() => setStopwatchStatus('paused')}>
+            <i className="fas fa-pause"></i> Pause
+          </button>
+        </div>
+      </header>
+
+      <main ref={mainRef} style={{ padding: `${mainPadding}px` }}>
+        <PuzzleBox
+          key={refreshId}
+          gridSize={gridSize}
+          moves={moves}
+          maxSize={maxSize}
+          onWin={handleWin}
+          onMovesChange={(m) => setMoves(m)}
+        />
+        {stopwatchStatus === 'paused' && <div className="overlay pause">
+          <h2>Game Paused</h2>
+          <p><strong>Time:</strong> {formatTime(elapsedSeconds)}</p>
+          <p><strong>Moves:</strong> {moves}</p>
+          <p><strong>Best Score:</strong> {bestScoreText}</p>
+          <button onClick={() => setStopwatchStatus('running')}>
+            <i className="fas fa-play"></i> Resume
+          </button>
+        </div>}
+        {isWon && <div className="overlay win">
+          <h2>🎉 You Won!</h2>
+          <p><strong>Time Taken:</strong> {formatTime(elapsedSeconds)}</p>
+          <p><strong>Moves:</strong> {moves}</p>
+          <p><strong>Best Score:</strong> {bestScoreText}</p>
+          <button onClick={handleContinueClick}><i className="fas fa-forward"></i> Continue</button>
+        </div>}
+      </main>
+
+      <footer>
+        <div className="stats">
+          <span><strong>Best Score:</strong> {bestScoreText}</span>
+          <span><strong>Moves:</strong> {moves}</span>
+        </div>
+      </footer>
     </>
   )
 }

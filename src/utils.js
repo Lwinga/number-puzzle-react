@@ -5,5 +5,5 @@ export function formatTime(seconds) {
 
   const pad = (num) => num < 10 ? '0' + num : num;
 
-  return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
+  return `${hrs > 0 ? pad(hrs) + ':' : ''}${pad(mins)}:${pad(secs)}`;
 }

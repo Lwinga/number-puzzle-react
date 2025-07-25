@@ -1,9 +1,14 @@
 import { useMemo, useState } from "react";
 import NumberBox from "./NumberBox.jsx";
 
+const padding = 16;
+const maxBoxSize = 80;
+const gap = 4;
+
 export default function PuzzleBox({
   gridSize,
   moves,
+  maxSize,
   onWin,
   onMovesChange,
 }) {
@@ -59,8 +64,9 @@ export default function PuzzleBox({
 
   const [boxes, setBoxes] = useState(initialBoxes);
 
-  const boxSize = 60;
-  const size = boxSize * gridSize;
+  const totalSpace = padding * 2 + gap * (gridSize - 1);
+  const boxSize = Math.min(maxBoxSize, (maxSize - totalSpace) / gridSize);
+  const size = boxSize * gridSize + totalSpace;
 
   function checkForWin(latestBoxes) {
     const totalBoxes = gridSize * gridSize - 1;
@@ -133,12 +139,10 @@ export default function PuzzleBox({
 
   return (
     <div
+      className="puzzle-grid"
       style={{
         width: `${size}px`,
         height: `${size}px`,
-        position: 'relative',
-        border: '2px solid black',
-        boxSizing: 'content-box',
       }}
     >
       {boxes.map(box => 
@@ -148,6 +152,8 @@ export default function PuzzleBox({
           size={boxSize}
           positionX={box.x}
           positionY={box.y}
+          gap={gap}
+          containerPadding={padding}
           onDrag={handleDrag}
         />
       )}

@@ -5,11 +5,16 @@ export default function NumberBox({
   size,
   positionX,
   positionY,
+  containerPadding,
+  gap,
   onDrag,
 }) {
   const [holdingAt, setHoldingAt] = useState(null);
 
   const isThrottledRef = useRef(false);
+
+  const left = positionX * size + positionX * gap + containerPadding;
+  const top = positionY * size + positionY * gap + containerPadding;
 
   function handleHold(e) {
     if (e.nativeEvent instanceof MouseEvent) {
@@ -68,22 +73,13 @@ export default function NumberBox({
 
   return (
     <div
+      className="tile"
       style={{
         width: `${size}px`,
         height: `${size}px`,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
         fontSize: `${size / 2}px`,
-        fontWeight: 'bold',
-        border: '2px solid black',
-        backgroundColor: 'coral',
-        color: 'white',
-        position: 'absolute',
-        left: `${positionX * size}px`,
-        top: `${positionY * size}px`,
-        userSelect: 'none',
-        transition: 'all 0.2s',
+        left: `${left}px`,
+        top: `${top}px`,
       }}
       onMouseDown={handleHold}
       onTouchStart={handleHold}
