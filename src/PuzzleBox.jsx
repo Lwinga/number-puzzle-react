@@ -3,7 +3,9 @@ import NumberBox from "./NumberBox.jsx";
 
 export default function PuzzleBox({
   gridSize,
+  moves,
   onWin,
+  onMovesChange,
 }) {
   const initialBoxes = useMemo(() => {
     // Generate the boxes
@@ -123,6 +125,7 @@ export default function PuzzleBox({
       }
     });
     setBoxes(nextBoxes);
+    onMovesChange(moves + 1);
     if (shouldCheckForWin && checkForWin(nextBoxes)) {
       onWin();
     }

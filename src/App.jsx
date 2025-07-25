@@ -27,19 +27,24 @@ export default function App() {
   const [gridSize, setGridSize] = useState(gridSizes[0].size);
   const [refreshId, setRefreshId] = useState(0);
   const [stopwatchStatus, setStopwatchStatus] = useState('running');
+  const [moves, setMoves] = useState(0);
   const [bestScore, setBestScore] = useLocalStorage(initialBestScore);
 
   const currentBestScore = Number(bestScore !== null ? bestScore[gridSize] : 0);
 
-  function handleGridSizeSelect(e) {
-    setGridSize(e.target.value);
+  function refresh() {
     setStopwatchStatus('running');
+    setMoves(0);
     setRefreshId(refreshId + 1);
   }
 
+  function handleGridSizeSelect(e) {
+    setGridSize(e.target.value);
+    refresh();
+  }
+
   function handleRefreshClick() {
-    setStopwatchStatus('running');
-    setRefreshId(refreshId + 1);
+    refresh();
   }
 
   function handleStop(elapsedSeconds) {
@@ -53,8 +58,7 @@ export default function App() {
       }
       window.alert('You won!\nTime taken: ' + formatTime(elapsedSeconds) +
         '\nBest score: ' + formatTime(nextBestScore));
-      setStopwatchStatus('running');
-      setRefreshId(refreshId + 1);
+      refresh();
     }, 250); // The delay to wait for the transition
   }
 
@@ -97,14 +101,23 @@ export default function App() {
       <PuzzleBox
         key={refreshId}
         gridSize={gridSize}
+        moves={moves}
         onWin={handleWin}
+        onMovesChange={(m) => setMoves(m)}
       />
       <div
         style={{
           marginTop: '16px',
         }}
       >
-        Best Score: { currentBestScore === 0 ? '---' : formatTime(currentBestScore) }
+        Best Score: {currentBestScore === 0 ? '---' : formatTime(currentBestScore)}
+      </div>
+      <div
+        style={{
+          marginTop: '16px',
+        }}
+      >
+        Number of Moves: {moves}
       </div>
       {stopwatchStatus === 'paused' && <div style={{
         position: 'fixed',
