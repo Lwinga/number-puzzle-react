@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { dragSound } from "./utils.js";
 
 export default function NumberBox({
   label,
@@ -80,8 +79,7 @@ export default function NumberBox({
         width: `${size}px`,
         height: `${size}px`,
         fontSize: `${size / 2}px`,
-        left: `${left}px`,
-        top: `${top}px`,
+        transform: `translate(${left}px, ${top}px)`,
       }}
       onMouseDown={handleHold}
       onTouchStart={handleHold}
@@ -90,7 +88,6 @@ export default function NumberBox({
       onMouseUp={() => setHoldingAt(null)}
       onTouchEnd={() => setHoldingAt(null)}
       onMouseOut={() => setHoldingAt(null)} // Workaround when onMouseUp is skipped after dragging outside
-      onTransitionEnd={() => dragSound.play()}
     >
       {label}
     </div>

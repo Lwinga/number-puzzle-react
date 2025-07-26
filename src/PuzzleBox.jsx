@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import NumberBox from "./NumberBox.jsx";
+import { dragSound } from "./utils.js";
 
 const maxPadding = 16;
 const maxBoxSize = 80;
@@ -136,6 +137,7 @@ export default function PuzzleBox({
     });
     setBoxes(nextBoxes);
     onMovesChange(moves + 1);
+    dragSound.play();
     if (shouldCheckForWin && checkForWin(nextBoxes)) {
       onWin();
     }
