@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import NumberBox from "./NumberBox.jsx";
 
-const padding = 16;
+const maxPadding = 16;
 const maxBoxSize = 80;
-const gap = 4;
+const maxGap = 4;
 
 export default function PuzzleBox({
   gridSize,
@@ -64,6 +64,10 @@ export default function PuzzleBox({
 
   const [boxes, setBoxes] = useState(initialBoxes);
 
+  const fullTotalSpace = maxPadding * 2 + maxGap * (gridSize - 1);
+  const fullSize = maxBoxSize * gridSize + fullTotalSpace;
+  const padding = Math.min(maxSize / fullSize, 1) * maxPadding;
+  const gap = Math.min(maxSize / fullSize, 1) * maxGap;
   const totalSpace = padding * 2 + gap * (gridSize - 1);
   const boxSize = Math.min(maxBoxSize, (maxSize - totalSpace) / gridSize);
   const size = boxSize * gridSize + totalSpace;

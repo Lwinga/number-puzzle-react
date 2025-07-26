@@ -134,7 +134,7 @@ export default function App() {
         />
         <div>
           <button className="icon-btn" onClick={handleRefreshClick}>
-            <i className="fas fa-rotate-right"></i> Refresh
+            <i className="fas fa-rotate-right"></i> Restart
           </button>
           <button className="icon-btn" onClick={() => setStopwatchStatus('paused')}>
             <i className="fas fa-pause"></i> Pause

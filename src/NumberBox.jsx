@@ -32,6 +32,7 @@ export default function NumberBox({
   }
 
   function handleDrag(e) {
+    e.preventDefault();
     if (!holdingAt) return;
 
     const minMovement = size / 8;
