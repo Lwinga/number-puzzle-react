@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import PuzzleBox from "./PuzzleBox.jsx";
 import Stopwatch from "./Stopwatch.jsx";
-import { formatTime } from "./utils.js";
+import { dragSound, formatTime } from "./utils.js";
 import { useLocalStorage } from "./hooks.js";
 
 const gridSizes = [
@@ -32,6 +32,7 @@ export default function App() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isWon, setIsWon] = useState(false);
   const [maxSize, setMaxSize] = useState(0);
+  const [isMuted, setIsMuted] = useState(dragSound.isMuted);
 
   const mainRef = useRef(null);
   
@@ -76,6 +77,13 @@ export default function App() {
 
   function handleRefreshClick() {
     refresh();
+  }
+
+  function handleMuteClick() {
+    const nextIsMuted = !isMuted;
+    setIsMuted(nextIsMuted);
+    dragSound.setIsMuted(nextIsMuted);
+    dragSound.play();
   }
 
   function handlePause(seconds) {
@@ -166,6 +174,9 @@ export default function App() {
           <span><strong>Best Score:</strong> {bestScoreText}</span>
           <span><strong>Moves:</strong> {moves}</span>
         </div>
+        <button className="icon-btn" title="Toggle Sound" onClick={handleMuteClick}>
+          <i className={isMuted ? "fas fa-volume-mute" : "fas fa-volume-up"}></i>
+        </button>
       </footer>
     </>
   )
